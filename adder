@@ -22,18 +22,15 @@ void handleLed() { // void hanleled diganti , sama tambah inisial untuk led 2
     if (id == 1) {
       ledState1 = state;
       digitalWrite(LED1_PIN, state ? HIGH : LOW);
-      Serial.print("LED 1: "); Serial.print(state ? "HIGH" : "LOW"); 
+      Serial.print("LED 1: "); Serial.println(state ? "HIGH" : "LOW"); 
     }
     else if (id == 2) {
       ledState2 = state;
       digitalWrite(LED2_PIN, state ? HIGH : LOW);
-      Serial.print("LED 2: "); Serial.print(state ? "HIGH" : "LOW"); 
+      Serial.print("LED 2: "); Serial.println(state ? "HIGH" : "LOW"); 
     }
   }
 
   webServer.sendHeader("Location", "/");
   webServer.send(303);
 }
-
-
-
