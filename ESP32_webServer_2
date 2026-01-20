@@ -20,9 +20,6 @@ DHT dht(DHTPIN, DHTTYPE);
 WiFiServer tcpServer(TCP_PORT);
 WebServer webServer(80);
 
-float temperature = 0.0;
-float humidity = 0.0;
-
 bool ledState = false;   // ← BOOL LED
 
 // ===== PARSING SENSOR =====
