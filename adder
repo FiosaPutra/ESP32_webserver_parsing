@@ -1,0 +1,9 @@
+html += "<h3>LED 1</h3>";
+html += "<a href='/led?id=1&state=1'><button>ON</button></a>";
+html += "<a href='/led?id=1&state=0'><button>OFF</button></a>";
+
+html += "<h3>LED 2</h3>";
+html += "<a href='/led?id=2&state=1'><button>ON</button></a>";
+html += "<a href='/led?id=2&state=0'><button>OFF</button></a>";
+
+
