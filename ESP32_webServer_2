@@ -8,13 +8,13 @@ const char* password = "YOUR_WIFI_PASSWORD";
 #define TCP_PORT 4080
 
 #define LED1_PIN  18
-#define LED2_PIN  32
+#define LED2_PIN  2
 
 int ledState1, ledState2;
 
-#define DHTPIN 2 
+#define DHTPIN 32 
 #define DHTTYPE DHT22 //DHT11
-
+float temperature, humidity;
 DHT dht(DHTPIN, DHTTYPE);
 
 WiFiServer tcpServer(TCP_PORT);
