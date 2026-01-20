@@ -13,7 +13,8 @@ const char* password = "YOUR_WIFI_PASSWORD";
 int ledState1, ledState2;
 
 #define DHTPIN 2 
-#define DHTTYPE DHT22
+#define DHTTYPE DHT22 //DHT11
+
 DHT dht(DHTPIN, DHTTYPE);
 
 WiFiServer tcpServer(TCP_PORT);
@@ -23,8 +24,6 @@ float temperature = 0.0;
 float humidity = 0.0;
 
 bool ledState = false;   // ← BOOL LED
-
-
 
 // ===== PARSING SENSOR =====
 void parseSensorData(String data) {
@@ -83,10 +82,11 @@ void handleLed() { // void hanleled diganti , sama tambah inisial untuk led 2
 }
 
 void setup() {
+  dht.begin();
   Serial.begin(115200);
   pinMode(LED1_PIN, OUTPUT);
   digitalWrite(LED1_PIN, LOW);
-
+  
   pinMode(LED2_PIN, OUTPUT);
   digitalWrite(LED2_PIN, LOW);
 
