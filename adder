@@ -8,3 +8,24 @@ html += "<a href='/led?id=2&state=1'><button>ON</button></a>";
 html += "<a href='/led?id=2&state=0'><button>OFF</button></a>";
 
 
+void handleLed() {
+  if (webServer.hasArg("id") && webServer.hasArg("state")) {
+    int id = webServer.arg("id").toInt();
+    bool state = webServer.arg("state") == "1";
+
+    if (id == 1) {
+      ledState1 = state;
+      digitalWrite(LED1_PIN, state ? HIGH : LOW);
+    }
+    else if (id == 2) {
+      ledState2 = state;
+      digitalWrite(LED2_PIN, state ? HIGH : LOW);
+    }
+  }
+
+  webServer.sendHeader("Location", "/");
+  webServer.send(303);
+}
+
+
+
