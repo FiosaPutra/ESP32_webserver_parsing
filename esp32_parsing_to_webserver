@@ -1,0 +1,95 @@
+#include <WiFi.h>
+#include <WebServer.h>
+
+const char* ssid = "YOUR_WIFI_SSID";
+const char* password = "YOUR_WIFI_PASSWORD";
+
+#define TCP_PORT 4080
+#define LED_PIN  18
+
+WiFiServer tcpServer(TCP_PORT);
+WebServer webServer(80);
+
+float temperature = 0.0;
+float humidity = 0.0;
+
+bool ledState = false;   // ← BOOL LED
+
+// ===== PARSING SENSOR =====
+void parseSensorData(String data) {
+  int t = data.indexOf("TEMP=");
+  int h = data.indexOf("HUM=");
+
+  if (t < 0 || h < 0) return;
+
+  temperature = data.substring(t + 5, data.indexOf(",", t)).toFloat();
+  humidity    = data.substring(h + 4).toFloat();
+}
+
+// ===== WEB ROOT =====
+void handleRoot() {
+  String html = "<h1>ESP32 SENSOR & LED</h1>";
+
+  html += "<p>Temperature: " + String(temperature,1) + " C</p>";
+  html += "<p>Humidity: " + String(humidity,1) + " %</p>";
+
+  html += "<p>LED State: ";
+  html += (ledState ? "ON" : "OFF");
+  html += "</p>";
+
+  html += "<a href='/led?state=1'><button>LED ON</button></a><br><br>";
+  html += "<a href='/led?state=0'><button>LED OFF</button></a>";
+
+  webServer.send(200, "text/html", html);
+}
+
+// ===== PARSING BOOL LED =====
+void handleLed() {
+  if (webServer.hasArg("state")) {
+    String val = webServer.arg("state");
+
+    if (val == "1") {
+      ledState = true;
+      digitalWrite(LED_PIN, HIGH);
+    }
+    else if (val == "0") {
+      ledState = false;
+      digitalWrite(LED_PIN, LOW);
+    }
+  }
+
+  // balik ke halaman utama
+  webServer.sendHeader("Location", "/");
+  webServer.send(303);
+}
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, LOW);
+
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) delay(500);
+
+  Serial.print("IP: ");
+  Serial.println(WiFi.localIP());
+
+  tcpServer.begin();
+
+  webServer.on("/", handleRoot);
+  webServer.on("/led", handleLed);
+  webServer.begin();
+}
+
+void loop() {
+  // ===== TCP SENSOR RECEIVE =====
+  WiFiClient client = tcpServer.available();
+  if (client && client.available()) {
+    String data = client.readStringUntil('\n');
+    data.trim();
+    parseSensorData(data);
+  }
+
+  // ===== WEB SERVER =====
+  webServer.handleClient();
+}
