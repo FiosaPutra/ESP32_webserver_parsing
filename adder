@@ -1,4 +1,9 @@
-// Baris Ke-48 diganti ke ini 
+#define LED2_PIN 33
+// LED STATE
+// LED PINMODE 
+
+///////////////////////////////////////////////////
+// Baris Ke-40 diganti ke ini 
 html += "<h3>LED 1</h3>";
 html += "<a href='/led?id=1&state=1'><button>ON</button></a>";
 html += "<a href='/led?id=1&state=0'><button>OFF</button></a>";
@@ -7,8 +12,9 @@ html += "<h3>LED 2</h3>";
 html += "<a href='/led?id=2&state=1'><button>ON</button></a>";
 html += "<a href='/led?id=2&state=0'><button>OFF</button></a>";
 
+////////  ,,, /////////////////////////
+void handleLed() { // void hanleled diganti , sama tambah inisial untuk led 2
 
-void handleLed() {
   if (webServer.hasArg("id") && webServer.hasArg("state")) {
     int id = webServer.arg("id").toInt();
     bool state = webServer.arg("state") == "1";
@@ -16,10 +22,12 @@ void handleLed() {
     if (id == 1) {
       ledState1 = state;
       digitalWrite(LED1_PIN, state ? HIGH : LOW);
+      Serial.print("LED 1: "); Serial.print(state ? "HIGH" : "LOW"); 
     }
     else if (id == 2) {
       ledState2 = state;
       digitalWrite(LED2_PIN, state ? HIGH : LOW);
+      Serial.print("LED 2: "); Serial.print(state ? "HIGH" : "LOW"); 
     }
   }
 
