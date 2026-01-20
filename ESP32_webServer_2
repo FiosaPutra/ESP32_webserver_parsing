@@ -106,6 +106,8 @@ void setup() {
 void loop() {
   float humidity = dht.readHumidity();
   float temperature = dht.readTemperature();
+  Serial.print(Suhu: );Serial.println(temperature);
+  Serial.print(Kelembaban: );Serial.println(humidity);
   // ===== TCP SENSOR RECEIVE =====
   WiFiClient client = tcpServer.available();
   if (client && client.available()) {
