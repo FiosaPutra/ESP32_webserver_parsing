@@ -1,0 +1,117 @@
+#include <WiFi.h>
+#include <WebServer.h>
+#include "DHT.h"
+
+const char* ssid = "YOUR_WIFI_SSID";
+const char* password = "YOUR_WIFI_PASSWORD";
+
+#define TCP_PORT 4080
+
+#define LED1_PIN  18
+#define LED2_PIN  32
+
+int ledState1, ledState2;
+
+#define DHTPIN 2 
+#define DHTTYPE DHT22
+DHT dht(DHTPIN, DHTTYPE);
+
+WiFiServer tcpServer(TCP_PORT);
+WebServer webServer(80);
+
+float temperature = 0.0;
+float humidity = 0.0;
+
+bool ledState = false;   // ← BOOL LED
+
+
+
+// ===== PARSING SENSOR =====
+void parseSensorData(String data) {
+  int t = data.indexOf("TEMP=");
+  int h = data.indexOf("HUM=");
+
+  if (t < 0 || h < 0) return;
+
+  temperature = data.substring(t + 5, data.indexOf(",", t)).toFloat();
+  humidity    = data.substring(h + 4).toFloat();
+}
+
+// ===== WEB ROOT =====
+void handleRoot() {
+  String html = "<h1>ESP32 SENSOR & LED</h1>";
+
+  html += "<p>Temperature: " + String(temperature,1) + " C</p>";
+  html += "<p>Humidity: " + String(humidity,1) + " %</p>";
+
+  html += "<p>LED State: ";
+  html += (ledState ? "ON" : "OFF");
+  html += "</p>";
+
+  html += "<h3>LED 1</h3>";
+html += "<a href='/led?id=1&state=1'><button>ON</button></a>";
+html += "<a href='/led?id=1&state=0'><button>OFF</button></a>";
+
+html += "<h3>LED 2</h3>";
+html += "<a href='/led?id=2&state=1'><button>ON</button></a>";
+html += "<a href='/led?id=2&state=0'><button>OFF</button></a>";
+
+  webServer.send(200, "text/html", html);
+}
+
+// ===== PARSING BOOL LED =====
+void handleLed() { // void hanleled diganti , sama tambah inisial untuk led 2
+
+  if (webServer.hasArg("id") && webServer.hasArg("state")) {
+    int id = webServer.arg("id").toInt();
+    bool state = webServer.arg("state") == "1";
+
+    if (id == 1) {
+      ledState1 = state;
+      digitalWrite(LED1_PIN, state ? HIGH : LOW);
+      Serial.print("LED 1: "); Serial.println(state ? "HIGH" : "LOW"); 
+    }
+    else if (id == 2) {
+      ledState2 = state;
+      digitalWrite(LED2_PIN, state ? HIGH : LOW);
+      Serial.print("LED 2: "); Serial.println(state ? "HIGH" : "LOW"); 
+    }
+  }
+
+  webServer.sendHeader("Location", "/");
+  webServer.send(303);
+}
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(LED1_PIN, OUTPUT);
+  digitalWrite(LED1_PIN, LOW);
+
+  pinMode(LED2_PIN, OUTPUT);
+  digitalWrite(LED2_PIN, LOW);
+
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) delay(500);
+
+  Serial.print("IP: ");
+  Serial.println(WiFi.localIP());
+
+  tcpServer.begin();
+
+  webServer.on("/", handleRoot);
+  webServer.on("/led", handleLed);
+  webServer.begin();
+}
+
+void loop() {
+  // ===== TCP SENSOR RECEIVE =====
+  WiFiClient client = tcpServer.available();
+  if (client && client.available()) {
+    String data = client.readStringUntil('\n');
+    data.trim();
+    parseSensorData(data);
+  }
+
+  // ===== WEB SERVER =====
+  webServer.handleClient();
+}
