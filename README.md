@@ -18,4 +18,5 @@ Projek ini menggunakan ESP32 Sebagai transmitter data sensor (DHT11) ke local We
 - Sensor DHT11/DHT22
 
 ## ▶️ Cara Menjalankan
-.
+Sketch Kasar untuk Rangkaian DHT dan Aktuator(LED) yaitu:
+<img src="esp32222.png" width="500"/>
